@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    loginScreen.style.display = 'flex';
+    homeContent.style.display = 'none';
     const profileManager = new ProfileManager();
 
     // Comprehensive login status check
@@ -42,7 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('User found in localStorage');
             loginScreen.style.display = 'none';
             homeContent.style.display = 'block';
-            
+            initializeCharts();
+            initializeSocialFeed();
             profileManager.updateProfile({
                 name: storedUser.split('@')[0],
                 level: 5,
@@ -301,8 +304,8 @@ function initializeCharts() {
             datasets: [{
                 label: 'Carbon Footprint (kg CO2)',
                 data: [250, 230, 180, 160, 140, 120],
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                borderColor: 'rgb(34, 197, 94)', // Green color
+                backgroundColor: 'rgba(34, 197, 94, 0.1)', // Light green fill
                 tension: 0.4,
                 fill: true
             }]
@@ -325,6 +328,16 @@ function initializeCharts() {
                         callback: function(value) {
                             return value + ' kg';
                         }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Carbon Emissions (kg CO2)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
                     }
                 }
             },
@@ -334,6 +347,14 @@ function initializeCharts() {
             }
         }
     });
+}
+
+// Social feed initialization (placeholder if not already defined)
+function initializeSocialFeed() {
+    // If you have a social feed class or function, call it here
+    if (window.socialFeed) {
+        window.socialFeed.updateFeed();
+    }
 }
 
 // Initialize everything when the page loads
