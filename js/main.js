@@ -1,49 +1,108 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded and parsed');
+
     const loginScreen = document.getElementById('loginScreen');
     const homeContent = document.getElementById('homeContent');
     const loginForm = document.getElementById('loginForm');
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
     
-    // Import ProfileManager (assuming it's available)
+    // Comprehensive logging and error checking
+    if (!loginScreen) console.error('Login screen element not found');
+    if (!homeContent) console.error('Home content element not found');
+    if (!loginForm) console.error('Login form element not found');
+    if (!loginEmail) console.error('Login email input not found');
+    if (!loginPassword) console.error('Login password input not found');
+
+    // Profile Manager with detailed logging
+    class ProfileManager {
+        updateProfile(profileData) {
+            console.log('Updating profile:', profileData);
+            
+            // Use querySelectorAll to be more robust
+            const nameElements = document.querySelectorAll('#profileUserName');
+            nameElements.forEach(el => el.textContent = profileData.name);
+
+            const pointsElements = document.querySelectorAll('#modalPoints, #userPoints');
+            pointsElements.forEach(el => el.textContent = `${profileData.points} Points`);
+
+            const levelElements = document.querySelectorAll('#modalLevel, #userLevel');
+            levelElements.forEach(el => el.textContent = `Level ${profileData.level}`);
+        }
+    }
+
     const profileManager = new ProfileManager();
 
-    // Check login status on page load
+    // Comprehensive login status check
     function checkLoginStatus() {
+        console.log('Checking login status');
         const storedUser = localStorage.getItem('ecoUser');
+        
         if (storedUser) {
+            console.log('User found in localStorage');
             loginScreen.style.display = 'none';
             homeContent.style.display = 'block';
             
-            // Update profile with stored user info
             profileManager.updateProfile({
                 name: storedUser.split('@')[0],
                 level: 5,
                 points: 850,
                 achievements: []
             });
+            document.getElementById('commentSection').classList.remove('hidden');
+            document.getElementById('commentLoginPrompt').classList.add('hidden');
         } else {
+            console.log('No user found in localStorage');
             loginScreen.style.display = 'flex';
             homeContent.style.display = 'none';
+            document.getElementById('commentSection').classList.add('hidden');
+        document.getElementById('commentLoginPrompt').classList.remove('hidden');
         }
     }
 
-    // Login form submission handler
+    // Robust login handler
     function handleLogin(event) {
-        event.preventDefault(); // Prevent default form submission
+        console.log('Login form submitted');
+        event.preventDefault(); // Critical: prevent default form submission
 
         const email = loginEmail.value.trim();
         const password = loginPassword.value.trim();
 
-        // Basic validation
-        if (email.endsWith('@gmail.com') && password.length >= 6) {
-            // Store user in localStorage
-            localStorage.setItem('ecoUser', email);
+        console.log('Login attempt:', { email, passwordLength: password.length });
 
-            // Hide login screen
-            loginScreen.style.display = 'none';
+        // Comprehensive validation
+        if (!email) {
+            console.error('Email is empty');
+            alert('Please enter an email address');
+            return;
+        }
+
+        if (!password) {
+            console.error('Password is empty');
+            alert('Please enter a password');
+            return;
+        }
+
+        // Enhanced validation
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        if (!gmailRegex.test(email)) {
+            console.error('Invalid email format');
+            alert('Please enter a valid Gmail address');
+            return;
+        }
+
+        if (password.length < 6) {
+            console.error('Password too short');
+            alert('Password must be at least 6 characters long');
+            return;
+        }
+
+        // Successful validation
+        try {
+            localStorage.setItem('ecoUser', email);
             
-            // Show home content
+            // Explicitly set display styles
+            loginScreen.style.display = 'none';
             homeContent.style.display = 'block';
 
             // Update profile
@@ -54,14 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 achievements: []
             });
 
-            // Clear login form
+            // Clear form
             loginEmail.value = '';
             loginPassword.value = '';
 
-            // Optional: Show welcome notification
+            console.log('Login successful');
             showNotification(`Welcome, ${email.split('@')[0]}!`);
-        } else {
-            alert('Please enter a valid Gmail address and password (at least 6 characters).');
+        } catch (error) {
+            console.error('Login process failed:', error);
+            alert('An error occurred during login. Please try again.');
         }
     }
 
@@ -75,11 +135,31 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => notification.remove(), 3000);
     }
 
-    // Event Listeners
-    loginForm.addEventListener('submit', handleLogin);
+    // Event Listeners with error handling
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+        console.log('Login form event listener added');
+    } else {
+        console.error('Could not add login form event listener');
+    }
 
     // Initial login status check
     checkLoginStatus();
+});
+
+// Logout function
+function logout() {
+    localStorage.removeItem('ecoUser');
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('homeContent').style.display = 'none';
+}
+
+// Attach logout to profile logout button
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('profileLogoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
 });
 
 // Optional: Add this function if you want a signup toggle
